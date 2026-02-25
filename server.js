@@ -34,7 +34,18 @@ app.event("message", async (args) => {
   }
 });
 
+// Minimal HTTP health check so Render knows the service is alive
+const http = require("http");
+const PORT = process.env.PORT || 3000;
+
+http
+  .createServer((_req, res) => {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "ok", bot: "competeiq" }));
+  })
+  .listen(PORT);
+
 (async () => {
   await app.start();
-  console.log("CompeteIQ bot is running!");
+  console.log(`CompeteIQ bot is running! Health check on port ${PORT}`);
 })();
