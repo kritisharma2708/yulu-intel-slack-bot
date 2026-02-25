@@ -3,11 +3,11 @@ require("dotenv").config();
 const { App } = require("@slack/bolt");
 const { handleMessage } = require("./handlers/messageHandler");
 
+const PORT = process.env.PORT || 3000;
+
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
-  socketMode: true,
-  appToken: process.env.SLACK_APP_TOKEN,
 });
 
 // Respond to @mentions in any channel
@@ -34,18 +34,7 @@ app.event("message", async (args) => {
   }
 });
 
-// Minimal HTTP health check so Render knows the service is alive
-const http = require("http");
-const PORT = process.env.PORT || 3000;
-
-http
-  .createServer((_req, res) => {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ status: "ok", bot: "competeiq" }));
-  })
-  .listen(PORT);
-
 (async () => {
-  await app.start();
-  console.log(`CompeteIQ bot is running! Health check on port ${PORT}`);
+  await app.start(PORT);
+  console.log(`CompeteIQ bot is running on port ${PORT}`);
 })();
