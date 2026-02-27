@@ -10,6 +10,16 @@ const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
+// Ignore Slack retries (caused by cold-start delays on Render free tier)
+app.use(async ({ context, next }) => {
+  const retryNum = context.retryNum;
+  if (retryNum) {
+    console.log(`Ignoring Slack retry #${retryNum} (reason: ${context.retryReason})`);
+    return;
+  }
+  await next();
+});
+
 // Respond to @mentions in any channel
 app.event("app_mention", async (args) => {
   await handleMessage(args);
